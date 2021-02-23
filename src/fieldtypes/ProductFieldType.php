@@ -60,40 +60,43 @@ class ProductFieldType extends Field implements PreviewableFieldInterface
         /** @var \shopify\models\Settings $settings */
         $settings = \shopify\Shopify::getInstance()->getSettings();
 
-        $defaultOptions = [];
-        $count = Shopify::getInstance()->service->getProductsCount($defaultOptions);
-        $productsData = Shopify::getInstance()->service->getProducts($defaultOptions);
-
-        $products = [];
-        if ($productsData !== false && $productsData['products'] && count($productsData['products']) > 0) {
-            $products = array_merge_recursive($products, $productsData['products']);
-        }
-
-        if (count($products) < $count && $productsData['link']['url']) {
-            while (count($products) < $count) {
-                $nextLink = $productsData['link']['url'];
-                $productsData = Shopify::getInstance()->service->getProducts($defaultOptions, $nextLink);
-                if ($productsData['products'] && count($productsData['products']) > 0) {
-                    $products = array_merge_recursive($products, $productsData['products']);
-                }
-            }
-        }
-
+		$defaultOptions = [];
         $options = [];
-        if ($products) {
-            foreach ($products as $product) {
-                $options[] = array(
-                    'label' => $product['title'],
-                    'productId' => $product['id'],
-                    'sku' => implode(
-                        ', ',
-                        array_map(function ($variant) {
-                            return $variant['sku'];
-                        }, $product['variants'])
-                    ),
-                );
-            }
-        }
+
+		$count = Shopify::getInstance()->service->getProductsCount($defaultOptions) ?: 0;
+		if ($count > 0) {
+			$productsData = Shopify::getInstance()->service->getProducts($defaultOptions);
+
+			$products = [];
+			if ($productsData !== false && $productsData['products'] && count($productsData['products']) > 0) {
+				$products = array_merge_recursive($products, $productsData['products']);
+			}
+
+			if (count($products) < $count && $productsData['link']['url']) {
+				while (count($products) < $count) {
+					$nextLink = $productsData['link']['url'];
+					$productsData = Shopify::getInstance()->service->getProducts($defaultOptions, $nextLink);
+					if ($productsData['products'] && count($productsData['products']) > 0) {
+						$products = array_merge_recursive($products, $productsData['products']);
+					}
+				}
+			}
+
+			if ($products) {
+				foreach ($products as $product) {
+					$options[] = array(
+						'label' => $product['title'],
+						'productId' => $product['id'],
+						'sku' => implode(
+							', ',
+							array_map(function ($variant) {
+								return $variant['sku'];
+							}, $product['variants'])
+						),
+					);
+				}
+			}
+		}
 
         Craft::$app->getView()->registerAssetBundle(ShopifyAssets::class);
 

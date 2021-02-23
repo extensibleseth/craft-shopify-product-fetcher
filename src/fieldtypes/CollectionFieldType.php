@@ -56,26 +56,30 @@ class CollectionFieldType extends Field implements PreviewableFieldInterface
         $options = [];
 
         // SMART COLLECTIONS:
-        $count = Shopify::getInstance()->service->getSmartCollectionsCount($defaultOptions);
-        $collectionsData = Shopify::getInstance()->service->getCollections(
-            $settings->allSmartCollectionsEndpoint,
-            $defaultOptions
-        );
+        $count = Shopify::getInstance()->service->getSmartCollectionsCount($defaultOptions) ?: 0;
+		if ($count > 0) {
+			$collectionsData = Shopify::getInstance()->service->getCollections(
+				$settings->allSmartCollectionsEndpoint,
+				$defaultOptions
+			);
 
-        if ($smartCollections = $this->_getCollections($count, $collectionsData, 'smart_collections', $defaultOptions)) {
-            $options = array_merge($options, $smartCollections);
-        }
+			if ($collectionsData !== false && $smartCollections = $this->_getCollections($count, $collectionsData, 'smart_collections', $defaultOptions)) {
+				$options = array_merge($options, $smartCollections);
+			}
+		}
 
         // CUSTOM COLLECTIONS:
-        $count = Shopify::getInstance()->service->getCustomCollectionsCount($defaultOptions);
-        $collectionsData = Shopify::getInstance()->service->getCollections(
-            $settings->allCustomCollectionsEndpoint,
-            $defaultOptions
-        );
+        $count = Shopify::getInstance()->service->getCustomCollectionsCount($defaultOptions) ?: 0;
+		if ($count > 0) {
+			$collectionsData = Shopify::getInstance()->service->getCollections(
+				$settings->allCustomCollectionsEndpoint,
+				$defaultOptions
+			);
 
-        if ($customCollections = $this->_getCollections($count, $collectionsData, 'custom_collections', $defaultOptions)) {
-            $options = array_merge($options, $customCollections);
-        }
+			if ($collectionsData !== false && $customCollections = $this->_getCollections($count, $collectionsData, 'custom_collections', $defaultOptions)) {
+				$options = array_merge($options, $customCollections);
+			}
+		}
 
         Craft::$app->getView()->registerAssetBundle(ShopifyAssets::class);
 

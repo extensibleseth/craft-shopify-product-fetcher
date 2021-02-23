@@ -275,6 +275,36 @@ class ShopifyService extends Component
                 'url' => $linkNextUrl ?? null,
                 'rel' => $linkRel ?? null,
             ];
+	    $raw = $link[0] ?? $link ?? false;
+
+	    if ($raw !== false) {
+	    $items['raw'] = $raw;
+
+            if (strpos($raw, ',') !== false) {
+	        //Split into two or more elements by comma
+		$rawLinkArr = explode(',', $raw);
+	    } else {
+	        //Create array with one element
+	        $rawLinkArr[] = $raw;
+	    }
+
+	    foreach ($rawLinkArr as $linkHeader) {
+		if (preg_match('/rel="(.*?)"/', $linkHeader, $match) == 1) {
+		    $exRel = $match[1];
+		}
+	        if (preg_match('/<(.*?)>/', $linkHeader, $match) == 1) {
+		    $exLink = $match[1];
+		}
+		$exLinkArr = parse_url($exLink);
+		$exLinkQueryArr = [];
+		if (isset($exLinkArr['query'])) {
+		    parse_str($exLinkArr['query'], $exLinkQueryArr);
+		}
+
+		$items['link']['limit'] = $exLinkQueryArr['limit'] ?? null;
+		$items['link'][$exRel] = $exLinkQueryArr['page_info'] ?? null;
+	    }
+	    }
 
             return $items;
         } catch (Exception $e) {
