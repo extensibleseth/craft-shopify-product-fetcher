@@ -1,8 +1,8 @@
 {
-    "name": "nmaier95/shopify-product-fetcher",
+    "name": "extensibleseth/shopify-product-fetcher",
     "description": "load your shopify-products into your craft3 cms instance",
     "type": "craft-plugin",
-    "version": "2.2.0",
+    "version": "2.3.0",
     "keywords": [
         "craft",
         "cms",
@@ -17,8 +17,8 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "niklas",
-            "homepage": "https://maier-niklas.de/"
+            "name": "@ponies",
+            "homepage": "https://iamponies.com/"
         }
     ],
     "require": {
